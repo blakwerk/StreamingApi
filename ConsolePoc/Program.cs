@@ -1,19 +1,20 @@
-﻿namespace ConsolePoc
+﻿namespace SampledStreamClient
 {
-    using System;
     using System.IO;
     using System.Threading.Tasks;
     using Microsoft.Extensions.Configuration;
     using Microsoft.Extensions.DependencyInjection;
     using Microsoft.Extensions.Hosting;
     using Microsoft.Extensions.Logging;
+    using RestSharp;
     using Serilog;
+    using Serilog.Events;
     using Streaming.Api.Core.Data;
     using Streaming.Api.Implementation.Data;
 
     class Program
     {
-        // application entry point
+        // stream client for external application entry point
         static async Task Main(string[] args)
         {
             using IHost host = CreateHostBuilder(args).Build();
@@ -27,11 +28,14 @@
             var builder = new ConfigurationBuilder();
             BuildConfig(builder);
 
-            Log.Logger = new LoggerConfiguration()
+            var loggerConfiguration = new LoggerConfiguration()
                 .ReadFrom.Configuration(builder.Build())
                 .Enrich.FromLogContext()
-                .WriteTo.Console()
-                .CreateLogger();
+                //.Enrich.WithMachineName()
+                .WriteTo.Console();
+
+            //Where does this go?
+            Log.Logger = loggerConfiguration.CreateLogger();
 
             Log.Logger.Information("Application Starting");
 
@@ -41,15 +45,23 @@
                 {
                     logging.ClearProviders();
                 })
-                .UseSerilog((hostContext, loggerConfiguration) =>
+                .UseSerilog((hostContext, logConfig) =>
                 {
-                    loggerConfiguration.ReadFrom.Configuration(hostContext.Configuration);
+                    logConfig.ReadFrom.Configuration(hostContext.Configuration);
                 })
                 // add di container for config
                 .ConfigureServices((context, services) =>
                 {
-                    
-
+                    //services.AddSingleton(() =>
+                    //{
+                        //var restClientAutoLogConfiguration = new RestClientAutologConfiguration
+                        //{
+                        //    MessageTemplateForSuccess = "{Method} {Uri} responded {StatusCode}",
+                        //    MessageTemplateForError = "{Method} {Uri} responded {StatusCode}",
+                        //    LoggerConfiguration = loggerConfiguration,
+                        //};
+                        //IRestClient client = new RestClientAutolog(restClientAutoLogConfiguration);
+                    //})
                     services.AddTransient<IDataService, DataService>();
                 });
 
@@ -63,7 +75,7 @@
              */
             var configDir = Directory.GetCurrentDirectory();
 
-            // quick hack for now
+            // TODO quick hack for now - but fix this.
             configDir = "c:\\users\\denton\\source\\repos\\streamingapi\\consolepoc";
 
             builder.SetBasePath(configDir)
