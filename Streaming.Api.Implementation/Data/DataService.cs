@@ -14,7 +14,7 @@
         private readonly IApiEnvironment _apiEnvironment;
 
         public DataService(
-            ILogger log, 
+            ILogger<DataService> log, 
             IConfiguration config,
             IApiEnvironment apiEnvironment)
         {

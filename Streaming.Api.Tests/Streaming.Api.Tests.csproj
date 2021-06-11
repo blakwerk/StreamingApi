@@ -25,10 +25,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="Configuration\" />
-  </ItemGroup>
-
-  <ItemGroup>
     <ProjectReference Include="..\Streaming.Api.Core\Streaming.Api.Core.csproj" />
     <ProjectReference Include="..\Streaming.Api.Implementation\Streaming.Api.Implementation.csproj" />
   </ItemGroup>

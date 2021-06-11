@@ -1,9 +1,8 @@
 namespace Streaming.Api.Tests.Data
 {
     using System;
-    using System.Collections.Generic;
     using Microsoft.Extensions.Configuration;
-    using Microsoft.Extensions.Logging;
+    using Microsoft.Extensions.Logging.Abstractions;
     using Moq;
     using Streaming.Api.Core.Configuration;
     using Streaming.Api.Implementation.Data;
@@ -11,17 +10,16 @@ namespace Streaming.Api.Tests.Data
 
     public class DataServiceTests
     {
-        
         [Fact]
-        public void ConnectAsync_WithInvalidConnectionSettingKey_ThrowsException()
+        public void ConnectAsync_WithInvalidConnectionSettingKey_ThrowsArgumentException()
         {
             // Arrange
             var environmentMock = new Mock<IApiEnvironment>();
-            var loggerStub = new Mock<ILogger>();
+            var loggerStub = new NullLogger<DataService>();
             var configStub = new Mock<IConfiguration>();
 
             var dut = new DataService(
-                loggerStub.Object,
+                loggerStub,
                 configStub.Object,
                 environmentMock.Object);
 
@@ -30,18 +28,18 @@ namespace Streaming.Api.Tests.Data
         }
 
         [Fact]
-        public void ConnectAsync_NullOrEmptyConnection_ThrowsException()
+        public void ConnectAsync_NullOrEmptyConnection_ThrowsArgumentException()
         {
             // Arrange
             var environmentMock = new Mock<IApiEnvironment>();
-            var loggerStub = new Mock<ILogger>();
+            var loggerStub = new NullLogger<DataService>();
             var configStub = new Mock<IConfiguration>();
 
             environmentMock.SetupGet(p => p.DatabaseConnection)
-                .Returns(FakeConfigurationProvider.ValidDbConnectionSettingsKey);
+                .Returns(FakeConfigurationProvider.ValidKey);
 
             var dut = new DataService(
-                loggerStub.Object,
+                loggerStub,
                 configStub.Object,
                 environmentMock.Object);
 
@@ -54,14 +52,14 @@ namespace Streaming.Api.Tests.Data
         {
             // Arrange
             var environmentMock = new Mock<IApiEnvironment>();
-            var loggerStub = new Mock<ILogger>();
+            var loggerStub = new NullLogger<DataService>();
             var fakeConfig = FakeConfigurationProvider.BuildDefaultConfiguration();
 
             environmentMock.SetupGet(p => p.DatabaseConnection)
-                .Returns(FakeConfigurationProvider.ValidDbConnectionSettingsKey);
+                .Returns(FakeConfigurationProvider.ValidKey);
 
             var dut = new DataService(
-                loggerStub.Object,
+                loggerStub,
                 fakeConfig,
                 environmentMock.Object);
 
@@ -72,34 +70,6 @@ namespace Streaming.Api.Tests.Data
 
             // For the purposes of this app, if we get to here, then we've successfully
             // connected to the db.
-        }
-    }
-
-    public class FakeConfigurationProvider
-    {
-        public const string ValidDbConnectionSettingsKey = "TestDbConnectionSettingsKey";
-        public const string ValidDbConnectionString = "TestDbConnectionString";
-
-        public static IConfiguration BuildDefaultConfiguration()
-        {
-            //Arrange
-            var inMemorySettings = new Dictionary<string, string> {
-                {"TopLevelKey", "TopLevelValue"},
-                {"SectionName:SomeKey", "SectionValue"},
-                {ValidDbConnectionSettingsKey, ValidDbConnectionString},
-                //...populate as needed for tests
-            };
-
-            return BuildConfiguration(inMemorySettings);
-        }
-
-        public static IConfiguration BuildConfiguration(Dictionary<string, string> config)
-        {
-            var configuration = new ConfigurationBuilder()
-                .AddInMemoryCollection(config)
-                .Build();
-
-            return configuration;
         }
     }
 }
