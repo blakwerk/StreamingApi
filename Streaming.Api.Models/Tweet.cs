@@ -1,29 +1,64 @@
 ﻿namespace Streaming.Api.Models
 {
     using System;
-    using System.Collections;
     using System.Collections.Generic;
     using System.Linq;
+    using System.Text.RegularExpressions;
 
     public class TweetStatsReport
     {
-        public int TotalProcessedTweets { get; set; }
+        public int TotalProcessedTweetCount { get; set; }
+
+        public int UrlContainingTweetCount { get; set; }
+
+        public int PhotoUrlContainingTweetCount { get; set; }
+
+        public int EmojiContainingTweetCount { get; set; }
+
+        public double PercentTweetsContainingUrl { get; set; }
+
+        public double PercentTweetsContainingPhotoUrl { get; set; }
+
+        public double PercentTweetsContainingEmoji { get; set; }
+
+        public IEnumerable<string> TopTenHashtags { get; set; }
+
+        public IEnumerable<string> TopTenEmoji { get; set; }
+
+        public IEnumerable<string> TopTenUrlDomains { get; set; }
     }
 
     public class StreamedTweet : IStreamedTweet
     {
+        private Lazy<IEnumerable<string>> emojis;
+
         /// <inheritdoc />
         public string Id { get; }
 
-        // need emojis
-        //public 
-
+        /// <inheritdoc />
         public string RawTweetText { get; }
 
-        // TODO use lazy
+        /// <inheritdoc />
+        public bool ContainsUrl => this.Uris.Any();
+
+        /// <inheritdoc />
+        public bool ContainsPhotoUrl {
+            get
+            {
+                return this.Uris.Any(u => u.Host.Contains("pic.twitter.com") || u.Host.Contains("instagram"));
+            }
+        }
+
+        /// <inheritdoc />
+        public bool ContainsEmoji => this.Emojis.Any();
+
+        /// <inheritdoc />
         public IEnumerable<string> HashTags { get; }
 
-        // TODO use lazy
+        /// <inheritdoc />
+        public IEnumerable<string> Emojis => this.emojis.Value;
+
+        /// <inheritdoc />
         public IEnumerable<Uri> Uris { get; }
 
         // Here's what we need to know:
@@ -58,6 +93,27 @@
             this.Uris = urls == null ? 
                 new Uri[0] : 
                 urls.Select(u => new Uri(u));
+
+            this.emojis = new Lazy<IEnumerable<string>>(() => this.ProcessEmoji(tweetText));
+        }
+
+        private IEnumerable<string> ProcessEmoji(string input)
+        {
+            var matches = Regex.Matches(input, EmojiUtils.EmojiRegex);
+
+            var emojiList = new List<string>();
+
+            foreach (var match in matches)
+            {
+                if (string.IsNullOrWhiteSpace(match?.ToString()))
+                {
+                    continue;
+                }
+
+                emojiList.Add(match.ToString());
+            }
+
+            return emojiList;
         }
     }
 

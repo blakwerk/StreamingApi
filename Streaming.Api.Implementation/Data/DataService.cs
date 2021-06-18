@@ -22,8 +22,10 @@
 
         //private readonly HashSet<string> processedTweets;
         private readonly ConcurrentDictionary<string, int> processedDomains;
+        private readonly ConcurrentDictionary<string, int> processedHashtags;
+        private readonly ConcurrentDictionary<string, int> processedEmojis;
 
-        private readonly ConcurrentDictionary<string, int> processedTweets;
+        private readonly ConcurrentDictionary<string, IStreamedTweet> processedTweetsRepository;
 
         public DataService(
             ILogger<DataService> log, 
@@ -35,8 +37,10 @@
             _apiEnvironment = apiEnvironment;
 
             //this.processedTweets = new HashSet<string>();
-            this.processedTweets = new ConcurrentDictionary<string, int>();
+            this.processedTweetsRepository = new ConcurrentDictionary<string, IStreamedTweet>();
             this.processedDomains = new ConcurrentDictionary<string, int>();
+            this.processedHashtags = new ConcurrentDictionary<string, int>();
+            this.processedEmojis = new ConcurrentDictionary<string, int>();
         }
         
         /// <inheritdoc />
@@ -78,28 +82,17 @@
         /// <inheritdoc />
         public Task UpsertTweetAsync(IStreamedTweet tweet)
         {
-            //bool newlyAdded;
-
-            //lock (this.hashLock)
-            //{
-            //    newlyAdded = this.processedTweets.Add(tweet.Id);
-            //}
-
-            //if(!newlyAdded)
-            //{
-            //    // for the purposes of this data exercise, do not double-process tweets
-            //    return Task.CompletedTask;
-            //}
-
-            if (this.processedTweets.ContainsKey(tweet.Id))
+            if (this.processedTweetsRepository.ContainsKey(tweet.Id))
             {
                 // for the purposes of this data exercise, do not double-process tweets
                 return Task.CompletedTask;
             }
 
-            this.processedTweets.AddOrUpdate(tweet.Id, 0, (_, _) => 0);
+            this.processedTweetsRepository.AddOrUpdate(tweet.Id, tweet, (_, _) => tweet);
             
             this.UpsertDomains(tweet.Uris);
+            this.UpsertHashtags(tweet.HashTags);
+            this.UpsertEmojis(tweet.Emojis);
 
             return Task.CompletedTask;
         }
@@ -107,15 +100,7 @@
         /// <inheritdoc />
         public Task<int> GetTweetProcessedCountAsync()
         {
-            //int processedCount;
-
-            //lock (this.hashLock)
-            //{
-            //    processedCount = this.processedTweets.Count;
-            //}
-
-            //return Task.FromResult(processedCount);
-            return Task.FromResult(this.processedTweets.Count);
+            return Task.FromResult(this.processedTweetsRepository.Count);
         }
 
         /// <inheritdoc />
@@ -130,11 +115,81 @@
             return Task.FromResult(topDomains);
         }
 
+        /// <inheritdoc />
+        public Task<IEnumerable<string>> GetTopHashtagsAsync(int takeCount)
+        {
+            var topHashtagsKvpSnapshot = this.processedHashtags.ToList();
+
+            topHashtagsKvpSnapshot.Sort((kvp1, kvp2) => kvp1.Value.CompareTo(kvp2.Value));
+
+            var topHashtags = topHashtagsKvpSnapshot.Select(kvp => kvp.Key).Take(takeCount);
+
+            return Task.FromResult(topHashtags);
+        }
+
+        /// <inheritdoc />
+        public Task<IEnumerable<string>> GetTopEmojisAsync(int takeCount)
+        {
+            var topEmojisKvpSnapshot = this.processedEmojis.ToList();
+
+            topEmojisKvpSnapshot.Sort((kvp1, kvp2) => kvp1.Value.CompareTo(kvp2.Value));
+
+            var topEmojis = topEmojisKvpSnapshot.Select(kvp => kvp.Key).Take(takeCount);
+
+            return Task.FromResult(topEmojis);
+        }
+
+        public Task<int> GetTweetsContainingUrlCountAsync()
+        {
+            return Task.FromResult(this.processedTweetsRepository.Values.Count(t => t.ContainsUrl));
+        }
+
+        public Task<int> GetTweetsContainingPhotoUrlCountAsync()
+        {
+            return Task.FromResult(this.processedTweetsRepository.Values.Count(t => t.ContainsPhotoUrl));
+        }
+
+        public Task<int> GetTweetsContainingEmojiCountAsync()
+        {
+            return Task.FromResult(this.processedTweetsRepository.Values.Count(t => t.ContainsEmoji));
+        }
+
         private void UpsertDomains(IEnumerable<Uri> uris)
         {
+            if (uris == null)
+            {
+                return;
+            }
+
             foreach (var uri in uris)
             {
-                this.processedDomains.AddOrUpdate(uri.Host, 0, (s, i) => i+1);
+                this.processedDomains.AddOrUpdate(uri.Host, 1, (s, i) => i+1);
+            }
+        }
+
+        private void UpsertHashtags(IEnumerable<string> hashtags)
+        {
+            if (hashtags == null)
+            {
+                return;
+            }
+
+            foreach (var hashtag in hashtags)
+            {
+                this.processedHashtags.AddOrUpdate(hashtag, 1, (s, i) => i + 1);
+            }
+        }
+
+        private void UpsertEmojis(IEnumerable<string> emojis)
+        {
+            if (emojis == null)
+            {
+                return;
+            }
+
+            foreach (var emoji in emojis)
+            {
+                this.processedEmojis.AddOrUpdate(emoji, 1, (s, i) => i + 1);
             }
         }
     }
