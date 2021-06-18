@@ -12,22 +12,22 @@
 
         public ReportService(IDataService dataService)
         {
-            this._dataService = dataService ?? throw new ArgumentNullException(nameof(dataService));
+            _dataService = dataService ?? throw new ArgumentNullException(nameof(dataService));
         }
 
         /// <inheritdoc />
         public async Task<TweetStatsReport> QueryStatisticsAsync()
         {
-            var tweetCountTask = this._dataService.GetTweetProcessedCountAsync();
-            var uriCountTask = this._dataService.GetTweetsContainingUrlCountAsync();
-            var photoUriCountTask = this._dataService.GetTweetsContainingPhotoUrlCountAsync();
-            var emojiCountTask = this._dataService.GetTweetsContainingEmojiCountAsync();
+            var tweetCountTask = _dataService.GetTweetProcessedCountAsync();
+            var uriCountTask = _dataService.GetTweetsContainingUrlCountAsync();
+            var photoUriCountTask = _dataService.GetTweetsContainingPhotoUrlCountAsync();
+            var emojiCountTask = _dataService.GetTweetsContainingEmojiCountAsync();
 
-            var topTenHashtagsTask = this._dataService.GetTopHashtagsAsync(10);
-            var topTenEmojiTask = this._dataService.GetTopEmojisAsync(10);
-            var topTenDomainsTask = this._dataService.GetTopDomainsAsync(10);
+            var topTenHashtagsTask = _dataService.GetTopHashtagsAsync(10);
+            var topTenEmojiTask = _dataService.GetTopEmojisAsync(10);
+            var topTenDomainsTask = _dataService.GetTopDomainsAsync(10);
 
-            var elapsedProcessingTask = this._dataService.GetElapsedProcessingTimeAsync();
+            var elapsedProcessingTask = _dataService.GetElapsedProcessingTimeAsync();
 
             await Task.WhenAll(
                     tweetCountTask,

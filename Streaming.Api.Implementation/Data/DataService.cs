@@ -11,6 +11,10 @@
     using System.Threading.Tasks;
     using Streaming.Api.Models;
 
+    /// <summary>
+    /// For the purposes of this project, this class is both a data store wrapper
+    /// and the data store itself. 
+    /// </summary>
     internal class DataService : IDataService
     {
         private bool _isConnected;
@@ -24,7 +28,6 @@
         private readonly ConcurrentDictionary<string, int> _processedDomains;
         private readonly ConcurrentDictionary<string, int> _processedHashtags;
         private readonly ConcurrentDictionary<string, int> _processedEmojis;
-
         private readonly ConcurrentDictionary<string, IStreamedTweet> _processedTweetsRepository;
 
         public DataService(
@@ -104,8 +107,6 @@
             this.UpsertDomains(tweet.Uris);
             this.UpsertHashtags(tweet.HashTags);
             this.UpsertEmojis(tweet.Emojis);
-
-            return;
         }
 
         /// <inheritdoc />
@@ -113,7 +114,7 @@
         {
             await this.ConnectAsync().ConfigureAwait(false);
 
-            return this._processedTweetsRepository.Count;
+            return _processedTweetsRepository.Count;
         }
 
         /// <inheritdoc />
@@ -163,7 +164,7 @@
         {
             await this.ConnectAsync().ConfigureAwait(false);
 
-            return this._processedTweetsRepository.Values.Count(t => t.ContainsUrl);
+            return _processedTweetsRepository.Values.Count(t => t.ContainsUrl);
         }
 
         /// <inheritdoc />
@@ -171,7 +172,7 @@
         {
             await this.ConnectAsync().ConfigureAwait(false);
 
-            return this._processedTweetsRepository.Values.Count(t => t.ContainsPhotoUrl);
+            return _processedTweetsRepository.Values.Count(t => t.ContainsPhotoUrl);
         }
 
         /// <inheritdoc />
@@ -179,7 +180,7 @@
         {
             await this.ConnectAsync().ConfigureAwait(false);
 
-            return this._processedTweetsRepository.Values.Count(t => t.ContainsEmoji);
+            return _processedTweetsRepository.Values.Count(t => t.ContainsEmoji);
         }
 
         /// <inheritdoc />
@@ -191,7 +192,7 @@
             // but this will satisfice for these purposes.
             var now = DateTime.UtcNow;
 
-            return now - this._processingStart;
+            return now - _processingStart;
         }
 
         private void UpsertDomains(IEnumerable<Uri> uris)

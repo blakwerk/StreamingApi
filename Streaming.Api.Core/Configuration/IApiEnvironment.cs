@@ -11,8 +11,18 @@
         string DatabaseConnection { get; }
 
         /// <summary>
-        /// Gets the base uri configuration key.
+        /// Gets the configuration key for the twitter api consumer key.
         /// </summary>
-        string V2ApiBaseUri { get; }
+        string TwitterAppConsumerKey { get; }
+
+        /// <summary>
+        /// Gets the configuration key for the twitter api secret key.
+        /// </summary>
+        string TwitterAppSecretKey { get; }
+
+        /// <summary>
+        /// Gets the configuration key for the twitter api token.
+        /// </summary>
+        string TwitterAppTokenKey { get; }
     }
 }

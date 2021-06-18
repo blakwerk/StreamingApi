@@ -12,6 +12,12 @@
         public string DatabaseConnection { get; } = "ConnectionStrings:DefaultConnection";
 
         /// <inheritdoc />
-        public string V2ApiBaseUri { get; } = "StaticDataFeedEndpoints:V2Api";
+        public string TwitterAppConsumerKey { get; } = "TwitterApiConnectionSettings:TwitterAppConsumerKey";
+
+        /// <inheritdoc />
+        public string TwitterAppSecretKey { get; } = "TwitterApiConnectionSettings:TwitterAppSecretKey";
+
+        /// <inheritdoc />
+        public string TwitterAppTokenKey { get; } = "TwitterApiConnectionSettings:TwitterAppTokenKey";
     }
 }
