@@ -1,7 +1,6 @@
 ﻿namespace Streaming.Api.Models
 {
     using System;
-    using System.Collections;
     using System.Collections.Generic;
 
     public interface IStreamedTweet

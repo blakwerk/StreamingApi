@@ -50,7 +50,7 @@
                 var currentSampleCount = 0;
                 var sampleStopCount = 10000;
 
-                this._logger.LogInformation("Connecting to stream.");
+                _logger.LogInformation("Connecting to stream.");
                 var sampleStreamV2 = client.StreamsV2.CreateSampleStream();
 
                 sampleStreamV2.EventReceived += SampleStreamV2_EventReceived;
@@ -63,7 +63,7 @@
 
                         if (string.IsNullOrWhiteSpace(args?.Tweet?.Text))
                         {
-                            this._logger.LogWarning("Empty tweet received.");
+                            _logger.LogWarning("Empty tweet received.");
                             // In the case of an error service, alerts, or circuit breaker,
                             // this is where we would want to send a report.
                             
@@ -72,7 +72,7 @@
 
                         var streamedTweet = BuildStreamedTweet(args.Tweet);
                         
-                        this._tweetProcessor.EnqueueTweetForProcessing(streamedTweet);
+                        _tweetProcessor.EnqueueTweetForProcessing(streamedTweet);
 
                         // threshold disabled. process indefinitely.
                         if (sampleStopCount < 0)
@@ -84,12 +84,12 @@
                         if (currentSampleCount >= sampleStopCount)
                         {
                             sampleStreamV2.StopStream();
-                            this._logger.LogInformation("Completing stream.");
+                            _logger.LogInformation("Completing stream.");
                         }
                     }
                     catch (Exception ex)
                     {
-                        this._logger.LogError(ex, "An exception occurred.");
+                        _logger.LogError(ex, "An exception occurred.");
                         // for the purposes of this stream reader, skip forward if we're hitting exceptions 
                         currentSampleCount += 10;
                     }
@@ -106,7 +106,7 @@
 
         private void SampleStreamV2_EventReceived(object sender, StreamEventReceivedArgs e)
         {
-            //this._logger.LogInformation($"Twitter stream event received: {e.Json}");
+            //_logger.LogInformation($"Twitter stream event received: {e.Json}");
         }
 
         private static IStreamedTweet BuildStreamedTweet(TweetV2 tweet)

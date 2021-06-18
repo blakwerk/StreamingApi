@@ -26,8 +26,8 @@
             ILogger<Worker> logger)
         {
             _streamConnection = streamConnection ?? throw new ArgumentNullException(nameof(streamConnection));
-            this._consoleUpdater = consoleUpdater ?? throw new ArgumentNullException(nameof(consoleUpdater));
-            this._tweetProcessor = tweetProcessor ?? throw new ArgumentNullException(nameof(tweetProcessor));
+            _consoleUpdater = consoleUpdater ?? throw new ArgumentNullException(nameof(consoleUpdater));
+            _tweetProcessor = tweetProcessor ?? throw new ArgumentNullException(nameof(tweetProcessor));
 
             _configuration = configuration ?? throw new ArgumentNullException(nameof(configuration));
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
@@ -39,7 +39,7 @@
 
             // connect to stream:
             var streamTask = _streamConnection.ConnectToSampledStreamAsync();
-            var updateTask = this._consoleUpdater.StartUpdatesAsync(TimeSpan.FromSeconds(5));
+            var updateTask = _consoleUpdater.StartUpdatesAsync(TimeSpan.FromSeconds(5));
             var processorTask = this.ProcessTweetsAsync();
 
             await Task.WhenAll(streamTask, updateTask, processorTask).ConfigureAwait(false);
@@ -51,7 +51,7 @@
         {
             while (true)
             {
-                await this._tweetProcessor.ProcessAllEnqueuedTweetsAsync();
+                await _tweetProcessor.ProcessAllEnqueuedTweetsAsync();
             }
         }
 
@@ -77,7 +77,7 @@
             ILogger<UpdaterWorker> logger)
         {
             _streamConnection = streamConnection ?? throw new ArgumentNullException(nameof(streamConnection));
-            this._consoleUpdater = consoleUpdater ?? throw new ArgumentNullException(nameof(consoleUpdater));
+            _consoleUpdater = consoleUpdater ?? throw new ArgumentNullException(nameof(consoleUpdater));
             _configuration = configuration ?? throw new ArgumentNullException(nameof(configuration));
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
         }
@@ -88,7 +88,7 @@
             _logger.LogInformation("Updater worker starting.");
 
             // begin console updates:
-            await this._consoleUpdater.StartUpdatesAsync(TimeSpan.FromSeconds(5));
+            await _consoleUpdater.StartUpdatesAsync(TimeSpan.FromSeconds(5));
 
             _logger.LogInformation("Updater worker finished.");
         }
@@ -113,7 +113,7 @@
             IConfiguration configuration,
             ILogger<TweetProcessorWorker> logger)
         {
-            this._tweetProcessor = tweetProcessor ?? throw new ArgumentNullException(nameof(tweetProcessor));
+            _tweetProcessor = tweetProcessor ?? throw new ArgumentNullException(nameof(tweetProcessor));
             _configuration = configuration ?? throw new ArgumentNullException(nameof(configuration));
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
         }
@@ -149,7 +149,7 @@
             ILogger<StreamReaderWorker> logger)
         {
             _streamConnection = streamConnection ?? throw new ArgumentNullException(nameof(streamConnection));
-            this._consoleUpdater = consoleUpdater ?? throw new ArgumentNullException(nameof(consoleUpdater));
+            _consoleUpdater = consoleUpdater ?? throw new ArgumentNullException(nameof(consoleUpdater));
             _configuration = configuration ?? throw new ArgumentNullException(nameof(configuration));
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
         }

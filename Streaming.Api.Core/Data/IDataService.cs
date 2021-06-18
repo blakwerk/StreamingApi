@@ -1,5 +1,6 @@
 ﻿namespace Streaming.Api.Core.Data
 {
+    using System;
     using System.Collections.Generic;
     using System.Diagnostics.Tracing;
     using System.Threading.Tasks;
@@ -42,5 +43,7 @@
         Task<int> GetTweetsContainingPhotoUrlCountAsync();
 
         Task<int> GetTweetsContainingEmojiCountAsync();
+
+        Task<TimeSpan> GetElapsedProcessingTimeAsync();
     }
 }

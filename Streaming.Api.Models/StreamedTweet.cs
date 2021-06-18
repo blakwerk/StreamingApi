@@ -5,29 +5,6 @@
     using System.Linq;
     using System.Text.RegularExpressions;
 
-    public class TweetStatsReport
-    {
-        public int TotalProcessedTweetCount { get; set; }
-
-        public int UrlContainingTweetCount { get; set; }
-
-        public int PhotoUrlContainingTweetCount { get; set; }
-
-        public int EmojiContainingTweetCount { get; set; }
-
-        public double PercentTweetsContainingUrl { get; set; }
-
-        public double PercentTweetsContainingPhotoUrl { get; set; }
-
-        public double PercentTweetsContainingEmoji { get; set; }
-
-        public IEnumerable<string> TopTenHashtags { get; set; }
-
-        public IEnumerable<string> TopTenEmoji { get; set; }
-
-        public IEnumerable<string> TopTenUrlDomains { get; set; }
-    }
-
     public class StreamedTweet : IStreamedTweet
     {
         private Lazy<IEnumerable<string>> emojis;
@@ -60,14 +37,6 @@
 
         /// <inheritdoc />
         public IEnumerable<Uri> Uris { get; }
-
-        // Here's what we need to know:
-        // 1: The number of tweets received
-        // 2: Avg tweets per hour/min/sec
-        // 3: Does it contain Emojis - if so, which ones (need all)
-        // 4: Does it contain hashtags? If so, which ones (need all)
-        // 5: Does it contain a url? If so, track it (& its domain)
-        // 6: Does it contain a photo url (twitter or insta)? If so, track it
 
         public StreamedTweet(
             string id,
