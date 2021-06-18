@@ -19,40 +19,40 @@
             ILogger<TweetProcessor> logger,
             IDataService dataService)
         {
-            this._dataService = dataService ?? throw new ArgumentNullException(nameof(dataService));
-            this._logger = logger ?? throw new ArgumentNullException(nameof(logger));
+            _dataService = dataService ?? throw new ArgumentNullException(nameof(dataService));
+            _logger = logger ?? throw new ArgumentNullException(nameof(logger));
 
-            this._tweetQueue = new ConcurrentQueue<IStreamedTweet>();
+            _tweetQueue = new ConcurrentQueue<IStreamedTweet>();
         }
 
         /// <inheritdoc />
         public void EnqueueTweetForProcessing(IStreamedTweet tweet)
         {
-            this._tweetQueue.Enqueue(tweet);
+            _tweetQueue.Enqueue(tweet);
         }
 
         /// <inheritdoc />
         public async Task ProcessAllEnqueuedTweetsAsync()
         {
-            while (!this._tweetQueue.IsEmpty)
+            while (!_tweetQueue.IsEmpty)
             {
-                var gotTweet = this._tweetQueue.TryDequeue(out var tweet);
+                var gotTweet = _tweetQueue.TryDequeue(out var tweet);
 
                 if (!gotTweet)
                 {
                     continue;
                 }
 
-                await this._dataService.UpsertTweetAsync(tweet);
+                await _dataService.UpsertTweetAsync(tweet);
             }
         }
 
         /// <inheritdoc />
         public Task ProcessTweetAsync(IStreamedTweet tweet)
         {
-            this._logger.LogDebug($"Logging tweet: {tweet.RawTweetText}");
+            _logger.LogDebug($"Logging tweet: {tweet.RawTweetText}");
             
-            return this._dataService.UpsertTweetAsync(tweet);
+            return _dataService.UpsertTweetAsync(tweet);
         }
     }
 }
