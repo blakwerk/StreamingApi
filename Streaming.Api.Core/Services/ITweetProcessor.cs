@@ -3,13 +3,11 @@
     using System.Threading.Tasks;
     using Streaming.Api.Models;
 
+    /// <summary>
+    /// Specifies a tweet processor.
+    /// </summary>
     public interface ITweetProcessor
     {
-        /// <summary>
-        /// Processes tweets.
-        /// </summary>
-        Task ProcessTweetAsync(IStreamedTweet tweet);
-
         /// <summary>
         /// Processes tweets.
         /// </summary>

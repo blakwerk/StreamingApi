@@ -5,6 +5,7 @@
     using System.Threading.Tasks;
     using Microsoft.Extensions.Configuration;
     using Microsoft.Extensions.Logging;
+    using Streaming.Api.Core.Configuration;
     using Streaming.Api.Core.Services;
     using Streaming.Api.Models;
     using Tweetinvi;
@@ -14,21 +15,25 @@
     internal class TweetStreamConnectionService : ITweetStreamConnection
     {
         private readonly ILogger<TweetStreamConnectionService> _logger;
-        private ITweetProcessor _tweetProcessor;
+        private readonly ITweetProcessor _tweetProcessor;
         private readonly IConfiguration _configuration;
+        private readonly IApiEnvironment _apiEnvironment;
+        private readonly int _sampledTweetsStopCount = -1;
 
         public TweetStreamConnectionService(
             ILogger<TweetStreamConnectionService> logger,
             ITweetProcessor tweetProcessor,
-            IConfiguration configuration)
+            IConfiguration configuration,
+            IApiEnvironment apiEnvironment)
         {
             _tweetProcessor = tweetProcessor ?? throw new ArgumentNullException(nameof(tweetProcessor));
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
             _configuration = configuration ?? throw new ArgumentNullException(nameof(configuration));
+            _apiEnvironment = apiEnvironment ?? throw new ArgumentNullException(nameof(apiEnvironment));
         }
 
         /// <summary>
-        /// 
+        /// Connects to twitter sampled stream and sends tweets for processing.
         /// </summary>
         public async Task ConnectToSampledStreamAsync()
         {
@@ -36,31 +41,43 @@
 
             try
             {
-                //TODO grab this from config
-                var bearerToken = "AAAAAAAAAAAAAAAAAAAAAN0CQgEAAAAAPtniRfuF%2BBWhLQ6DpQvltGc5En0%3DkWZQgqeNCXRWiPsQhVMdhM7gt8ydq7tQAvZfgCZNTz7UdfHxm6";
+                var tokenSetting = _apiEnvironment.TwitterAppTokenKey;
+                var consumerKeySetting = _apiEnvironment.TwitterAppConsumerKey;
+                var consumerSecretSetting = _apiEnvironment.TwitterAppSecretKey;
 
-                var consumerKey = "PyYoQXHCrJyap2kun19yHAHjO";
-                var consumerSecretKey = "jFRZFvS8LyCVbiJTNESLujnKfGJTrjEiDvnt2rb09v0sGAHiNX";
+                if (string.IsNullOrWhiteSpace(tokenSetting) ||
+                    string.IsNullOrWhiteSpace(consumerKeySetting) ||
+                    string.IsNullOrWhiteSpace(consumerSecretSetting))
+                {
+                    throw new Exception("Unable to find one or more configuration key settings.");
+                }
+
+                var bearerToken = _configuration.GetValue<string>(tokenSetting);
+                var consumerKey = _configuration.GetValue<string>(consumerKeySetting);
+                var consumerSecretKey = _configuration.GetValue<string>(consumerSecretSetting);
 
                 _logger.LogInformation("Creating stream client.");
 
+                // since the connection to the stream is not the focal point of this, and
+                // only serves to simulate high-volume API traffic, it's not made
+                // particularly robust. otherwise, better to generate a client from 
+                // a factory (for testing), and implement connect-on-disconnect error handling,
+                // and either encrypt the twitter api connection settings, or provide them
+                // via azure (azure app config, azure key vault, etc).
                 var client = new TwitterClient(consumerKey, consumerSecretKey, bearerToken);
                 client.Config.TweetMode = TweetMode.Extended;
 
                 var currentSampleCount = 0;
-                var sampleStopCount = 10000;
 
                 _logger.LogInformation("Connecting to stream.");
                 var sampleStreamV2 = client.StreamsV2.CreateSampleStream();
 
                 sampleStreamV2.EventReceived += SampleStreamV2_EventReceived;
 
-                sampleStreamV2.TweetReceived += (sender, args) =>
+                sampleStreamV2.TweetReceived += (_, args) =>
                 {
                     try
                     {
-                        //_logger.LogDebug(args.Tweet.Text);
-
                         if (string.IsNullOrWhiteSpace(args?.Tweet?.Text))
                         {
                             _logger.LogWarning("Empty tweet received.");
@@ -70,18 +87,20 @@
                             return;
                         }
 
+                        _logger.LogDebug(args.Tweet.Text);
+
                         var streamedTweet = BuildStreamedTweet(args.Tweet);
                         
                         _tweetProcessor.EnqueueTweetForProcessing(streamedTweet);
 
                         // threshold disabled. process indefinitely.
-                        if (sampleStopCount < 0)
+                        if (_sampledTweetsStopCount < 0)
                         {
                             return;
                         }
 
                         currentSampleCount++;
-                        if (currentSampleCount >= sampleStopCount)
+                        if (currentSampleCount >= _sampledTweetsStopCount)
                         {
                             sampleStreamV2.StopStream();
                             _logger.LogInformation("Completing stream.");
@@ -106,7 +125,9 @@
 
         private void SampleStreamV2_EventReceived(object sender, StreamEventReceivedArgs e)
         {
-            //_logger.LogInformation($"Twitter stream event received: {e.Json}");
+            _logger.LogDebug($"Twitter stream event received: {e.Json}");
+
+            // if we were going to have a reconnect service, check the event here and reconnect.
         }
 
         private static IStreamedTweet BuildStreamedTweet(TweetV2 tweet)

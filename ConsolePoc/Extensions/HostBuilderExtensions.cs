@@ -2,8 +2,6 @@
 {
     using Microsoft.Extensions.DependencyInjection;
     using Microsoft.Extensions.Hosting;
-    using Microsoft.Extensions.Logging;
-    using Serilog;
     using Streaming.Api.Core.Configuration;
     using Streaming.Api.Core.Data;
     using Streaming.Api.Core.Services;
@@ -17,18 +15,6 @@
     internal static class HostBuilderExtensions
     {
         /// <summary>
-        /// Configures logging, by clearing the default logging and using Serilog.
-        /// </summary>
-        internal static IHostBuilder ConfigureLogging(this IHostBuilder self)
-        {
-            return self.ConfigureLogging(logging => { logging.ClearProviders(); })
-                .UseSerilog((hostContext, logConfig) =>
-                {
-                    logConfig.ReadFrom.Configuration(hostContext.Configuration);
-                });
-        }
-
-        /// <summary>
         /// Configures services for the app
         /// </summary>
         internal static IHostBuilder ConfigureServices(this IHostBuilder self)
@@ -36,9 +22,6 @@
             return self.ConfigureServices((_, services) =>
             {
                 services.AddHostedService<Worker>();
-                //services.AddHostedService<StreamReaderWorker>();
-                //services.AddHostedService<UpdaterWorker>();
-                //services.AddHostedService<TweetProcessorWorker>();
 
                 services.AddSingleton<ITweetProcessor, TweetProcessor>();
                 services.AddSingleton<IDataService, DataService>();
