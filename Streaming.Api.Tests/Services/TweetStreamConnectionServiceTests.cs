@@ -6,6 +6,7 @@
     using Moq;
     using RestSharp;
     using Streaming.Api.Core.Configuration;
+    using Streaming.Api.Core.Services;
     using Streaming.Api.Implementation.Services;
     using Xunit;
 
@@ -15,13 +16,13 @@
         public void ConnectAsync_WithInvalidConnectionSettingKey_ThrowsException()
         {
             // Arrange
-            var clientMock = new Mock<IClientFactory>();
+            var tweetProcessor = new Mock<ITweetProcessor>();
             var loggerStub = new NullLogger<TweetStreamConnectionService>();
             var configStub = new Mock<IConfiguration>();
 
             var dut = new TweetStreamConnectionService(
                 loggerStub,
-                clientMock.Object,
+                tweetProcessor.Object,
                 configStub.Object);
 
             // Act & Assert

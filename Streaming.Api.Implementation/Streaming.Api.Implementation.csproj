@@ -14,6 +14,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\Streaming.Api.Core\Streaming.Api.Core.csproj" />
+    <ProjectReference Include="..\Streaming.Api.Models\Streaming.Api.Models.csproj" />
   </ItemGroup>
 
 </Project>

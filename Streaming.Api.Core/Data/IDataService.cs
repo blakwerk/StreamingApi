@@ -1,6 +1,8 @@
 ﻿namespace Streaming.Api.Core.Data
 {
+    using System.Collections.Generic;
     using System.Threading.Tasks;
+    using Streaming.Api.Models;
 
     public interface IDataService
     {
@@ -9,6 +11,19 @@
         /// </summary>
         Task ConnectAsync();
 
-        //TODO Add templated CRUD methods.
+        /// <summary>
+        /// Insert or updates a tweet.
+        /// </summary>
+        Task UpsertTweetAsync(IStreamedTweet tweet);
+
+        /// <summary>
+        /// Gets a count of tweets processed.
+        /// </summary>
+        Task<int> GetTweetProcessedCountAsync();
+
+        /// <summary>
+        /// Gets a collection of the most-often processed domains in tweets.
+        /// </summary>
+        Task<IEnumerable<string>> GetTopDomainsAsync(int takeCount);
     }
 }

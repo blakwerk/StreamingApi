@@ -3,7 +3,6 @@
     using Microsoft.Extensions.DependencyInjection;
     using Microsoft.Extensions.Hosting;
     using Microsoft.Extensions.Logging;
-    using RestSharp;
     using Serilog;
     using Streaming.Api.Core.Configuration;
     using Streaming.Api.Core.Data;
@@ -34,16 +33,21 @@
         /// </summary>
         internal static IHostBuilder ConfigureServices(this IHostBuilder self)
         {
-            return self.ConfigureServices((context, services) =>
+            return self.ConfigureServices((_, services) =>
             {
                 services.AddHostedService<Worker>();
+                //services.AddHostedService<StreamReaderWorker>();
+                //services.AddHostedService<UpdaterWorker>();
+                //services.AddHostedService<TweetProcessorWorker>();
 
-                services.AddTransient<IApiEnvironment, ApiEnvironment>();
-                services.AddTransient<IClientFactory, ClientFactory>();
+                services.AddSingleton<ITweetProcessor, TweetProcessor>();
+                services.AddSingleton<IDataService, DataService>();
 
+                services.AddScoped<IReportService, ReportService>();
+                services.AddScoped<IConsoleUpdater, ConsoleUpdater>();
                 services.AddScoped<ITweetStreamConnection, TweetStreamConnectionService>();
 
-                services.AddSingleton<IDataService, DataService>();
+                services.AddTransient<IApiEnvironment, ApiEnvironment>();
             });
         }
     }

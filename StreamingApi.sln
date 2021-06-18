@@ -11,6 +11,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Streaming.Api.Implementatio
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Streaming.Api.Tests", "Streaming.Api.Tests\Streaming.Api.Tests.csproj", "{C6DFD283-04EE-4809-9109-755B472205DA}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Streaming.Api.Models", "Streaming.Api.Models\Streaming.Api.Models.csproj", "{197C78CE-3AC8-400A-87FC-89FCCF29916F}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -33,6 +35,10 @@ Global
 		{C6DFD283-04EE-4809-9109-755B472205DA}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{C6DFD283-04EE-4809-9109-755B472205DA}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{C6DFD283-04EE-4809-9109-755B472205DA}.Release|Any CPU.Build.0 = Release|Any CPU
+		{197C78CE-3AC8-400A-87FC-89FCCF29916F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{197C78CE-3AC8-400A-87FC-89FCCF29916F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{197C78CE-3AC8-400A-87FC-89FCCF29916F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{197C78CE-3AC8-400A-87FC-89FCCF29916F}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

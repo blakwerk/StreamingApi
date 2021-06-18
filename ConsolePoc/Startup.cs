@@ -6,8 +6,10 @@
     using Microsoft.Extensions.Hosting;
     using SampledStreamClient.Extensions;
     using Serilog;
+    using Streaming.Api.Core.Configuration;
     using Streaming.Api.Core.Data;
     using Streaming.Api.Core.Services;
+    using Streaming.Api.Implementation.Configuration;
     using Streaming.Api.Implementation.Data;
     using Streaming.Api.Implementation.Services;
 
@@ -28,36 +30,43 @@
             Log.Logger = loggerConfiguration.CreateLogger();
             Log.Logger.Information("Application Starting");
 
+            //return Host.CreateDefaultBuilder()
+            //    .ConfigureServices(services =>
+            //    {
+            //        services.AddHostedService<Worker>();
+
+            //        services.AddSingleton<IDataService, DataService>();
+
+            //        services.AddScoped<ITweetProcessor, TweetProcessor>();
+            //        services.AddScoped<ITweetStreamConnection, TweetStreamConnectionService>();
+
+            //        services.AddTransient<IApiEnvironment, ApiEnvironment>();
+            //    });
+
             return Host.CreateDefaultBuilder()
-                .ConfigureServices(services =>
-                {
-                    services.AddHostedService<Worker>();
-
-                    services.AddScoped<ITweetStreamConnection, TweetStreamConnectionService>();
-
-                    services.AddSingleton<IDataService, DataService>();
-                });
-        }
-
-        /// <summary>
-        /// Responsible for configuration and middleware.
-        /// </summary>
-        internal static IHostBuilder CreateHostBuilder(string[] args)
-        {
-            var config = BuildConfig();
-
-            var loggerConfiguration = new LoggerConfiguration().ConfigureSerilog(config);
-
-            //Where does this go?
-            Log.Logger = loggerConfiguration.CreateLogger();
-            Log.Logger.Information("Application Starting");
-
-            var host = Host.CreateDefaultBuilder(args)
-                .ConfigureLogging()
                 .ConfigureServices();
-
-            return host;
         }
+
+        ///// <summary>
+        ///// Responsible for configuration and middleware.
+        ///// </summary>
+        //internal static IHostBuilder CreateHostBuilder(string[] args)
+        //{
+        //    var config = BuildConfig();
+
+        //    var loggerConfiguration = new LoggerConfiguration()
+        //        .ConfigureSerilog(config);
+
+        //    //Where does this go?
+        //    Log.Logger = loggerConfiguration.CreateLogger();
+        //    Log.Logger.Information("Application Starting");
+
+        //    var host = Host.CreateDefaultBuilder(args)
+        //        .ConfigureLogging()
+        //        .ConfigureServices();
+
+        //    return host;
+        //}
 
         static IConfigurationRoot BuildConfig()
         {
