@@ -4,9 +4,9 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace ConsolePoc.Configuration
+namespace Streaming.Api.Implementation.Extensions
 {
-    class ConfigurationManager
+    class TweetExtensions
     {
     }
 }
