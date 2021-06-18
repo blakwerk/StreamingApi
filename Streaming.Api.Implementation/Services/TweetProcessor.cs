@@ -13,6 +13,7 @@
         private readonly ILogger<TweetProcessor> _logger;
         private readonly IDataService _dataService;
 
+        // rather than an in-memory queue, this could be a remote processing queue
         private readonly ConcurrentQueue<IStreamedTweet> _tweetQueue;
 
         public TweetProcessor(
@@ -34,25 +35,20 @@
         /// <inheritdoc />
         public async Task ProcessAllEnqueuedTweetsAsync()
         {
+            await _dataService.ConnectAsync().ConfigureAwait(false);
+
             while (!_tweetQueue.IsEmpty)
             {
                 var gotTweet = _tweetQueue.TryDequeue(out var tweet);
 
                 if (!gotTweet)
                 {
+                    _logger.LogWarning("Could not get tweet from queue, but queue is not empty.");
                     continue;
                 }
 
                 await _dataService.UpsertTweetAsync(tweet);
             }
-        }
-
-        /// <inheritdoc />
-        public Task ProcessTweetAsync(IStreamedTweet tweet)
-        {
-            _logger.LogDebug($"Logging tweet: {tweet.RawTweetText}");
-            
-            return _dataService.UpsertTweetAsync(tweet);
         }
     }
 }

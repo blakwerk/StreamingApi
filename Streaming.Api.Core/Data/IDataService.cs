@@ -2,7 +2,6 @@
 {
     using System;
     using System.Collections.Generic;
-    using System.Diagnostics.Tracing;
     using System.Threading.Tasks;
     using Streaming.Api.Models;
 
@@ -38,12 +37,25 @@
         /// </summary>
         Task<IEnumerable<string>> GetTopEmojisAsync(int takeCount);
 
+        /// <summary>
+        /// Gets a count of tweets containing any url.
+        /// </summary>
         Task<int> GetTweetsContainingUrlCountAsync();
 
+        /// <summary>
+        /// Gets a count of tweets containing a url with a link to
+        /// instagram or pic.twitter.com
+        /// </summary>
         Task<int> GetTweetsContainingPhotoUrlCountAsync();
 
+        /// <summary>
+        /// Gets a count of tweets containing emoji
+        /// </summary>
         Task<int> GetTweetsContainingEmojiCountAsync();
 
+        /// <summary>
+        /// Gets total elapsed processing time since startup.
+        /// </summary>
         Task<TimeSpan> GetElapsedProcessingTimeAsync();
     }
 }

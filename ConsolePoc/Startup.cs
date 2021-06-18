@@ -23,25 +23,11 @@
             var loggerConfiguration = new LoggerConfiguration()
                 //.ReadFrom.Configuration(builder.Build())
                 .Enrich.FromLogContext()
-                //.Enrich.WithMachineName()
                 .WriteTo.Console();
 
             //Where does this go?
             Log.Logger = loggerConfiguration.CreateLogger();
             Log.Logger.Information("Application Starting");
-
-            //return Host.CreateDefaultBuilder()
-            //    .ConfigureServices(services =>
-            //    {
-            //        services.AddHostedService<Worker>();
-
-            //        services.AddSingleton<IDataService, DataService>();
-
-            //        services.AddScoped<ITweetProcessor, TweetProcessor>();
-            //        services.AddScoped<ITweetStreamConnection, TweetStreamConnectionService>();
-
-            //        services.AddTransient<IApiEnvironment, ApiEnvironment>();
-            //    });
 
             return Host.CreateDefaultBuilder()
                 .ConfigureServices();
